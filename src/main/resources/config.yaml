@@ -4,9 +4,21 @@ Presentation:
   ResetTextColor: "\e[0m"
 
 TextToText:
+  Provider: "OpenAI"
+  #Supported options: "OpenAI", "Groq"
   Model: "gpt-4o-mini"
+  #Supported options: "gpt-4o-mini" (OpenAI), "llama3-8b-8192" (Groq), "llama3-70b-8192" (Groq), "mixtral-8x7b-32768" (Groq)
 
 TextToSpeech:
+  Provider: "ElevenLabs"
   Model: "eleven_turbo_v2_5"
   OptimizeStreamingLatency: "2"
+  #Supported options: 1-4
   VoiceId: "Vo4adEN1y46b0ufuysRe"
+  #Supported options: Ola - "Vo4adEN1y46b0ufuysRe" (ElevenLabs)
+
+SpeechToText:
+  Provider: "Groq"
+  #Supported options: "OpenAI", "Groq"
+  Model: "whisper-large-v3-turbo"
+  #Supported options: whisper-1 (OpenAI), "whisper-large-v3-turbo" (Groq), "whisper-large-v3" (Groq)
