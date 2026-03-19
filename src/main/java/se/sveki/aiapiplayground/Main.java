@@ -2,7 +2,6 @@ package se.sveki.aiapiplayground;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import okhttp3.*;
 import se.sveki.aiapiplayground.utilities.PromptLoader;
 
 import java.time.LocalDate;
@@ -26,7 +25,7 @@ public class Main {
 
         String today = LocalDate.now().toString();
 
-        String initialTextResponse = TextToText.promptOpenAi(
+        String initialTextResponse = TextToText.textToText(
                 PromptLoader.getPrompt("TextToText.OpenAI.Start").replace("{{today}}", LocalDate.now().toString()),
                 initialReport);
 
@@ -75,7 +74,7 @@ public class Main {
                 + "Du: " + entryDraftReaction
                 + config.get("Presentation").get("ResetTextColor").asText());
 
-        String followUpTextResponse = TextToText.promptOpenAi(
+        String followUpTextResponse = TextToText.textToText(
                 PromptLoader.getPrompt("TextToText.OpenAI.FollowUp").replace("{{oldCrm}}", LlmResponseProcessor.getResponsePartString(initialTextResponse, "CRM"))
                         .replace("{{oldReminder}}", LlmResponseProcessor.getResponsePartString(initialTextResponse, "REMINDER")),
                 entryDraftReaction

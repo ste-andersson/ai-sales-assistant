@@ -20,38 +20,54 @@ public class TextToText {
     private static final YAMLMapper yamlMapper = new YAMLMapper();
     private static final Logger performanceLog = LoggerFactory.getLogger("PerformanceLogger");
 
+    public static String textToText(String instruction, String prompt) throws IOException {
 
-    public static String promptOpenAi(String instruction, String prompt) throws IOException {
-
-        String apiKey = Dotenv.load().get("OPENAI_API_KEY");
         JsonNode config = yamlMapper.readTree(Main.class.getResourceAsStream("/config.yaml"));
+        JsonNode tttConfig = config.get("TextToText");
+        String provider = tttConfig.get("Provider").asText();
+        String model = tttConfig.get("Model").asText();
+
+        String url;
+        String apiKey;
+
+        switch (provider.toUpperCase()) {
+            case "GROQ" -> {
+                url = "https://api.groq.com/openai/v1/chat/completions";
+                apiKey = Dotenv.load().get("GROQ_KEY");
+            }
+            case "OPENAI" -> {
+                url = "https://api.openai.com/v1/chat/completions";
+                apiKey = Dotenv.load().get("OPENAI_API_KEY");
+            }
+            default -> throw new IllegalArgumentException("Oväntad TTT Provider: " + provider);
+        }
 
         List<TextToTextOpenAIOutgoing.Message> messages = List.of(
                 new TextToTextOpenAIOutgoing.Message("system", instruction),
                 new TextToTextOpenAIOutgoing.Message("user", prompt)
         );
 
-        TextToTextOpenAIOutgoing outgoingRequest = new TextToTextOpenAIOutgoing(config.get("TextToText").get("Model").asText(), messages);
-
+        TextToTextOpenAIOutgoing outgoingRequest = new TextToTextOpenAIOutgoing(model, messages);
         String jsonPayload = jsonMapper.writeValueAsString(outgoingRequest);
 
         Request request = new Request.Builder()
-                .url("https://api.openai.com/v1/chat/completions")
+                .url(url)
                 .header("Authorization", "Bearer " + apiKey)
                 .header("Content-Type", "application/json")
                 .post(RequestBody.create(jsonPayload, MediaType.parse("application/json")))
                 .build();
 
-            performanceLog.info("START: Call to ChatGPT");
+            performanceLog.info("START: Call to " + provider + "(" + model + ")");
 
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                throw new IOException("OpenAI svarade med felkod: " + response.code() + " - " + response.message());
+                String errorJson = response.body() != null ? response.body().string() : "Empty body";
+                throw new IOException(provider + " Error " + response.code() + ": " + errorJson);
             }
 
             String responseBody = response.body().string();
             TextToTextOpenAiIncoming mappedResponse = jsonMapper.readValue(responseBody, TextToTextOpenAiIncoming.class);
-            performanceLog.info("STOP: Text from ChatGPT");
+            performanceLog.info("STOP: Text from " + provider + "(" + model + ")");
             return mappedResponse.choices().get(0).message().content();
         }
     }

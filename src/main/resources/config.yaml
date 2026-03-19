@@ -4,10 +4,10 @@ Presentation:
   ResetTextColor: "\e[0m"
 
 TextToText:
-  Provider: "OpenAI"
+  Provider: "Groq"
   #Supported options: "OpenAI", "Groq"
-  Model: "gpt-4o-mini"
-  #Supported options: "gpt-4o-mini" (OpenAI), "llama3-8b-8192" (Groq), "llama3-70b-8192" (Groq), "mixtral-8x7b-32768" (Groq)
+  Model: "llama-3.3-70b-versatile"
+  #Supported options: "gpt-4o-mini" (OpenAI), llama-3.3-70b-versatile (Groq), mixtral-8x7b-32768 (Groq)
 
 TextToSpeech:
   Provider: "ElevenLabs"
