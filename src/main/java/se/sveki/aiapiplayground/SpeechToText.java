@@ -1,17 +1,23 @@
 package se.sveki.aiapiplayground;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.cdimascio.dotenv.Dotenv;
 import okhttp3.*;
+import se.sveki.aiapiplayground.models.SpeechToTextOpenAiIncoming;
+
 import java.io.*;
 import javax.sound.sampled.*;
 import java.util.Scanner;
 
 public class SpeechToText {
-    public static String speechToText() throws Exception {
-        String apiKey = Dotenv.load().get("OPENAI_API_KEY");
-        File fil = new File("speech.wav");
+    private static final OkHttpClient client = new OkHttpClient();
+    private static final ObjectMapper mapper = new ObjectMapper();
 
-        // 1. SPELA IN (Starta med Enter, stoppa med Enter)
+    public static String speechToText() throws Exception {
+
+        String apiKey = Dotenv.load().get("OPENAI_API_KEY");
+        File file = new File("speech.wav");
+
         System.out.println("Tryck ENTER för att spela in...");
         new Scanner(System.in).nextLine();
 
@@ -20,10 +26,12 @@ public class SpeechToText {
         line.open(format);
         line.start();
 
-        // En tråd som skriver ljudet till filen i bakgrunden
         Thread t = new Thread(() -> {
-            try { AudioSystem.write(new AudioInputStream(line), AudioFileFormat.Type.WAVE, fil); }
-            catch (Exception e) {}
+            try {
+                AudioSystem.write(new AudioInputStream(line), AudioFileFormat.Type.WAVE, file);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
         t.start();
 
@@ -32,14 +40,12 @@ public class SpeechToText {
         line.stop();
         line.close();
 
-        // 2. SKICKA (Whisper API)
         System.out.println("Transkriberar...");
-        OkHttpClient client = new OkHttpClient();
 
         RequestBody body = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("model", "whisper-1")
-                .addFormDataPart("file", fil.getName(), RequestBody.create(fil, MediaType.parse("audio/wav")))
+                .addFormDataPart("file", file.getName(), RequestBody.create(file, MediaType.parse("audio/wav")))
                 .build();
 
         Request req = new Request.Builder()
@@ -48,14 +54,10 @@ public class SpeechToText {
                 .post(body).build();
 
         try (Response res = client.newCall(req).execute()) {
-            String filteredResponse = filteredResponse(res.body().string());
-            return filteredResponse;
-        }
-    }
+            if (!res.isSuccessful()) throw new IOException("Whisper error: " + res.code());
 
-    private static String filteredResponse(String unfilteredResponse) {
-        int start = unfilteredResponse.indexOf("\"text\":\"") + 8;
-        int slut = unfilteredResponse.indexOf("\"", start);
-        return unfilteredResponse.substring(start, slut);
+            SpeechToTextOpenAiIncoming result = mapper.readValue(res.body().string(), SpeechToTextOpenAiIncoming.class);
+            return result.text();
+        }
     }
 }

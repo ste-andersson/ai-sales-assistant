@@ -13,14 +13,14 @@ public class Main {
         YAMLMapper mapper = new YAMLMapper();
         JsonNode config = mapper.readTree(Main.class.getResourceAsStream("/config.yaml"));
 
-//        TextToSpeech.elevenLabsVoice("Vo4adEN1y46b0ufuysRe", "Hej! Administratören här! Berätta vad du vill, så ser jag till att all information hamnar rätt. Min lott i livet är ju tyvärr att lyssna på ditt pladder och försöka få någon form av struktur i det...");
+//        TextToSpeech.elevenLabsVoice("Vo4adEN1y46b0ufuysRe", "Hej! Administratören här! Berätta vad du vill, så ser jag till att all information hamnar rätt. Min lott i livet är ju tyvärr att lyssna på ditt pladder och försöka få någon form av struktur i det hela...");
 
         String initialReport = "Jag hade just ett möte med Svante Jonsson på Testingbolaget och de är intresserade av att ta in tre konsulter efter sommaren. Vi har ett nytt möte 3:e juni 15:00 på deras kontor. Påminn mig om att jag behöver kolla med Hanna på torsdag förmiddag om hon är tillgänglig och att jag också måste kolla med Torbjörn i mitten av nästa vecka om han är intresserad av ett underkonsultuppdrag.";
-//        try {
-//            initialReport = SpeechToText.speechToText();
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
+        try {
+            initialReport = SpeechToText.speechToText();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         System.out.println(config.get("Presentation").get("UserTextColor").asText() + "Du: " + initialReport + config.get("Presentation").get("ResetTextColor").asText());
 
