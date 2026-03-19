@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.cdimascio.dotenv.Dotenv;
 import okhttp3.*;
 import se.sveki.aiapiplayground.models.TextToTextOpenAIOutgoing;
+import se.sveki.aiapiplayground.models.TextToTextOpenAiIncoming;
 
 import java.io.IOException;
 import java.util.List;
@@ -39,23 +40,9 @@ public class TextToText {
                 throw new IOException("OpenAI svarade med felkod: " + response.code() + " - " + response.message());
             }
 
-            // response.body().string() kan bara läsas EN gång, så vi sparar den i en variabel
             String responseBody = response.body().string();
-            return getResponseContent(responseBody);
-        }
-    }
-
-    private static String getResponseContent(String responseJson) {
-        try {
-            JsonNode root = mapper.readTree(responseJson);
-            return root
-                    .path("choices")
-                    .get(0)
-                    .path("message")
-                    .path("content")
-                    .asText();
-        } catch (Exception e) {
-            throw new RuntimeException("Could not parse OpenAI response", e);
+            TextToTextOpenAiIncoming mappedResponse = mapper.readValue(responseBody, TextToTextOpenAiIncoming.class);
+            return mappedResponse.choices().get(0).message().content();
         }
     }
 }

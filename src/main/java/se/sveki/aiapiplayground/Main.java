@@ -1,5 +1,7 @@
 package se.sveki.aiapiplayground;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import okhttp3.*;
 import se.sveki.aiapiplayground.utilities.PromptLoader;
 
@@ -8,6 +10,8 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws Exception {
+        YAMLMapper mapper = new YAMLMapper();
+        JsonNode config = mapper.readTree(Main.class.getResourceAsStream("/config.yaml"));
 
 //        TextToSpeech.elevenLabsVoice("Vo4adEN1y46b0ufuysRe", "Hej! Administratören här! Berätta vad du vill, så ser jag till att all information hamnar rätt. Min lott i livet är ju tyvärr att lyssna på ditt pladder och försöka få någon form av struktur i det...");
 
@@ -18,12 +22,12 @@ public class Main {
 //            throw new RuntimeException(e);
 //        }
 
-        System.out.println("\u001B[33mDu: " + initialReport + "\u001B[0m");
+        System.out.println(config.get("Presentation").get("UserTextColor").asText() + "Du: " + initialReport + config.get("Presentation").get("ResetTextColor").asText());
 
         String today = LocalDate.now().toString();
 
         String initialTextResponse = TextToText.promptOpenAi(
-                "gpt-4o-mini",
+                config.get("TextToText").get("Model").asText(),
                 PromptLoader.getPrompt("TextToText.OpenAI.Start").replace("{{today}}", LocalDate.now().toString()),
                 initialReport);
 
@@ -33,28 +37,44 @@ public class Main {
         List<String[]> crmData = LlmResponseProcessor.getResponsePartList(initialTextResponse, "CRM");
         List<String[]> remindersData = LlmResponseProcessor.getResponsePartList(initialTextResponse, "REMINDER");
 
-        System.out.println("\n\u001B[36mAssistenten: " + comments + "\u001B[0m");
+        System.out.println(config.get("Presentation").get("AssistantTextColor").asText()
+                + "Assistenten: " + comments
+                + config.get("Presentation").get("ResetTextColor").asText());
 
         System.out.println("\nFörslag för registrering i CRM:");
-        LlmResponseProcessor.printListData(crmData, "CRM DATA", "Organisation", "Kontaktperson", "Datum", "Kommentar");
+        LlmResponseProcessor.printListData(
+                crmData,
+                "CRM DATA",
+                "Organisation",
+                "Kontaktperson",
+                "Datum",
+                "Kommentar");
 
         System.out.println("\nFörslag för påminnelser att registrera:");
-        LlmResponseProcessor.printListData(remindersData, "PÅMINNELSE", "Datum", "Tid", "Rubrik", "Detaljer");
+        LlmResponseProcessor.printListData(
+                remindersData,
+                "PÅMINNELSE",
+                "Datum",
+                "Tid",
+                "Rubrik",
+                "Detaljer");
 
 
 
         String safeComments = comments.replace("\"", "\\\"");
-        TextToSpeech.elevenLabsVoice("Vo4adEN1y46b0ufuysRe", comments);
+//        TextToSpeech.elevenLabsVoice("Vo4adEN1y46b0ufuysRe", comments);
 
         String entryDraftReaction = "Det blir jättebra! Jag godkänner det!";
 
-        try {
-            entryDraftReaction = SpeechToText.speechToText();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+//            entryDraftReaction = SpeechToText.speechToText();
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
 
-        System.out.println("\u001B[33mDu: " + entryDraftReaction + "\u001B[0m");
+        System.out.println(config.get("Presentation").get("UserTextColor").asText()
+                + "Du: " + entryDraftReaction
+                + config.get("Presentation").get("ResetTextColor").asText());
 
         String followUpTextResponse = TextToText.promptOpenAi(
                 "gpt-4o-mini",
@@ -67,9 +87,9 @@ public class Main {
         comments = LlmResponseProcessor.getResponsePartString(followUpTextResponse, "COMMENTS");
 
         safeComments = comments.replace("\"", "\\\"");
-        TextToSpeech.elevenLabsVoice("Vo4adEN1y46b0ufuysRe", comments);
+//        TextToSpeech.elevenLabsVoice("Vo4adEN1y46b0ufuysRe", comments);
 
-        System.out.println("\n\u001B[36mAssistenten: " + comments + "\u001B[0m\n");
+        System.out.println(config.get("Presentation").get("AssistantTextColor").asText() + "Assistenten: " + comments + config.get("Presentation").get("ResetTextColor").asText());
 
         String currentAiAssistantState = LlmResponseProcessor.getResponsePartString(followUpTextResponse, "ACTION");
 
@@ -84,7 +104,5 @@ public class Main {
                 SendToDatabase.postCrmEntry(reminderInputText, "http://localhost:8081/api/reminder-entries");
             }
         }
-
-
     }
 }

@@ -8,9 +8,7 @@ import java.io.*;
 public class TextToSpeech {
     public static void elevenLabsVoice(String voiceId, String script) throws Exception {
         String apiKey = Dotenv.load().get("ELEVEN_LABS_KEY");
-//        String voiceId = "21m00Tcm4TlvDq8ikWAM"; // Rachel
 
-        // Standard-URL för MP3 (fungerar på Free Tier)
         String url = "https://api.elevenlabs.io/v1/text-to-speech/" + voiceId;
 
         String json = """

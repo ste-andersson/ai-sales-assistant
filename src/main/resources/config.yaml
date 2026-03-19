@@ -1,0 +1,8 @@
+Presentation:
+  UserTextColor: "\e[33m"
+  AssistantTextColor: "\e[36m"
+  ResetTextColor: "\e[0m"
+
+TextToText:
+  Model: gpt-4o-mini
+

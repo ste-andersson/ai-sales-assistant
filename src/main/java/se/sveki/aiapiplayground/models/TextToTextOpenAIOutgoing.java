@@ -3,5 +3,6 @@ package se.sveki.aiapiplayground.models;
 import java.util.List;
 
 public record TextToTextOpenAIOutgoing(String model, List<Message> messages) {
-    public record Message(String role, String content) {}
+    public record Message(String role, String content) {
+    }
 }

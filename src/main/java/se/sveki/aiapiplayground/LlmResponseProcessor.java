@@ -12,8 +12,7 @@ public class LlmResponseProcessor {
         if (startPosition == -1 || endPosition == -1) {
             return "";
         }
-
-        return llmResponse.substring(startPosition, endPosition).replace("\"", "\\\"").replace("\n", "\\n");
+        return llmResponse.substring(startPosition, endPosition);
     }
 
     public static List<String[]> getResponsePartList(String llmResponse, String keyword) {
@@ -27,8 +26,6 @@ public class LlmResponseProcessor {
         }
         return reminders;
     }
-
-
 
     public static void printListData(List<String[]> inputData, String type, String label1, String label2, String label3, String label4) {
         for (int i = 0; i < inputData.size(); i++) {
