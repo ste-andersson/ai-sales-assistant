@@ -13,7 +13,7 @@ public class Main {
         YAMLMapper mapper = new YAMLMapper();
         JsonNode config = mapper.readTree(Main.class.getResourceAsStream("/config.yaml"));
 
-        TextToSpeech.elevenLabsVoice("Vo4adEN1y46b0ufuysRe", "Hej! Administratören här! Berätta vad du vill, så ser jag till att all information hamnar rätt. Min lott i livet är ju tyvärr att lyssna på ditt pladder och försöka få någon form av struktur i det hela...");
+        TextToSpeech.elevenLabsVoice("Hej! Administratören här! Berätta vad du vill, så ser jag till att all information hamnar rätt. Min lott i livet är ju tyvärr att lyssna på ditt pladder och försöka få någon form av struktur i det hela...");
 
         String initialReport = "Jag hade just ett möte med Svante Jonsson på Testingbolaget och de är intresserade av att ta in tre konsulter efter sommaren. Vi har ett nytt möte 3:e juni 15:00 på deras kontor. Påminn mig om att jag behöver kolla med Hanna på torsdag förmiddag om hon är tillgänglig och att jag också måste kolla med Torbjörn i mitten av nästa vecka om han är intresserad av ett underkonsultuppdrag.";
         try {
@@ -27,7 +27,6 @@ public class Main {
         String today = LocalDate.now().toString();
 
         String initialTextResponse = TextToText.promptOpenAi(
-                config.get("TextToText").get("Model").asText(),
                 PromptLoader.getPrompt("TextToText.OpenAI.Start").replace("{{today}}", LocalDate.now().toString()),
                 initialReport);
 
@@ -62,32 +61,29 @@ public class Main {
 
 
         String safeComments = comments.replace("\"", "\\\"");
-//        TextToSpeech.elevenLabsVoice("Vo4adEN1y46b0ufuysRe", comments);
+        TextToSpeech.elevenLabsVoice(comments);
 
         String entryDraftReaction = "Det blir jättebra! Jag godkänner det!";
 
-//        try {
-//            entryDraftReaction = SpeechToText.speechToText();
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
+        try {
+            entryDraftReaction = SpeechToText.speechToText();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         System.out.println(config.get("Presentation").get("UserTextColor").asText()
                 + "Du: " + entryDraftReaction
                 + config.get("Presentation").get("ResetTextColor").asText());
 
         String followUpTextResponse = TextToText.promptOpenAi(
-                "gpt-4o-mini",
                 PromptLoader.getPrompt("TextToText.OpenAI.FollowUp").replace("{{oldCrm}}", LlmResponseProcessor.getResponsePartString(initialTextResponse, "CRM"))
                         .replace("{{oldReminder}}", LlmResponseProcessor.getResponsePartString(initialTextResponse, "REMINDER")),
                 entryDraftReaction
         );
 
-//        System.out.println(followUpTextResponse);
         comments = LlmResponseProcessor.getResponsePartString(followUpTextResponse, "COMMENTS");
 
-        safeComments = comments.replace("\"", "\\\"");
-//        TextToSpeech.elevenLabsVoice("Vo4adEN1y46b0ufuysRe", comments);
+        TextToSpeech.elevenLabsVoice(comments);
 
         System.out.println(config.get("Presentation").get("AssistantTextColor").asText() + "Assistenten: " + comments + config.get("Presentation").get("ResetTextColor").asText());
 

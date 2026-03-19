@@ -4,5 +4,9 @@ Presentation:
   ResetTextColor: "\e[0m"
 
 TextToText:
-  Model: gpt-4o-mini
+  Model: "gpt-4o-mini"
 
+TextToSpeech:
+  Model: "eleven_turbo_v2_5"
+  OptimizeStreamingLatency: "2"
+  VoiceId: "Vo4adEN1y46b0ufuysRe"

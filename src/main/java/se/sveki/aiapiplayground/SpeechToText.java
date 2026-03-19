@@ -3,6 +3,8 @@ package se.sveki.aiapiplayground;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.cdimascio.dotenv.Dotenv;
 import okhttp3.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import se.sveki.aiapiplayground.models.SpeechToTextOpenAiIncoming;
 
 import java.io.*;
@@ -12,6 +14,7 @@ import java.util.Scanner;
 public class SpeechToText {
     private static final OkHttpClient client = new OkHttpClient();
     private static final ObjectMapper mapper = new ObjectMapper();
+    private static final Logger performanceLog = LoggerFactory.getLogger("PerformanceLogger");
 
     public static String speechToText() throws Exception {
 
@@ -53,10 +56,13 @@ public class SpeechToText {
                 .header("Authorization", "Bearer " + apiKey)
                 .post(body).build();
 
+        performanceLog.info("START: Call to Whisper");
+
         try (Response res = client.newCall(req).execute()) {
             if (!res.isSuccessful()) throw new IOException("Whisper error: " + res.code());
 
             SpeechToTextOpenAiIncoming result = mapper.readValue(res.body().string(), SpeechToTextOpenAiIncoming.class);
+            performanceLog.info("STOP: Response from Whisper");
             return result.text();
         }
     }
