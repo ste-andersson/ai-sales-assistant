@@ -1,6 +1,7 @@
 package se.sveki.aiapiplayground;
 
 import okhttp3.*;
+import se.sveki.aiapiplayground.utilities.PromptLoader;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -8,14 +9,14 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) throws Exception {
 
-        TextToSpeech.elevenLabsVoice("Vo4adEN1y46b0ufuysRe", "Hej! Administratören här! Berätta vad du vill, så ser jag till att all information hamnar rätt. Min lott i livet är ju tyvärr att lyssna på ditt pladder och försöka få någon form av struktur i det...");
+//        TextToSpeech.elevenLabsVoice("Vo4adEN1y46b0ufuysRe", "Hej! Administratören här! Berätta vad du vill, så ser jag till att all information hamnar rätt. Min lott i livet är ju tyvärr att lyssna på ditt pladder och försöka få någon form av struktur i det...");
 
         String initialReport = "Jag hade just ett möte med Svante Jonsson på Testingbolaget och de är intresserade av att ta in tre konsulter efter sommaren. Vi har ett nytt möte 3:e juni 15:00 på deras kontor. Påminn mig om att jag behöver kolla med Hanna på torsdag förmiddag om hon är tillgänglig och att jag också måste kolla med Torbjörn i mitten av nästa vecka om han är intresserad av ett underkonsultuppdrag.";
-        try {
-            initialReport = SpeechToText.speechToText();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+//            initialReport = SpeechToText.speechToText();
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
 
         System.out.println("\u001B[33mDu: " + initialReport + "\u001B[0m");
 
@@ -23,13 +24,7 @@ public class Main {
 
         String initialTextResponse = TextToText.promptOpenAi(
                 "gpt-4o-mini",
-                "Du är en sarkastisk och bitter affärsassistent. När användaren rapporterar om ett möte, extrahera data och svara EXAKT i detta format:\\n"
-                        + "<CRM>Volvo Personbilar AB;Anna Andersson;2026-03-16;Bra möte! Vi kom överens om att vi ska skicka en offert senast på fredag!</CRM>\\n"
-                        + "<REMINDER>2026-06-03;10:00;Ring Johan;Hör med Johan om han har några kontakter på Volvo.</REMINDER>\\n"
-                        + "<COMMENTS>Här skriver du ett svar om hur du tolkade om användarens input till data. Det är detta som läses upp för användaren.</COMMENTS>\\n"
-                        + "I CRM är date alltid " + today + ". Försök att lista ut vilken organisation användaren menar, även om det inte sägs rakt ut. Summary ska innehålla ALLT av affärsvärde som användaren berättar om händelsen."
-                        + "I REMINDER ska du utgå ifrån att dagens datum är " + today + ". Om användaren säger 'fredag' eller 'nästa vecka', räkna ut rätt datum och välja dessa. Om användaren anger dag och tid är det dessa som gäller, annars väljer du det mest logiska."
-                        + "I COMMENTS ska du förklara hur du tänkt när du valt tider för reminders, motivera saker du utelämnat från summary och delge annat som inte är självklart. Påminn användaren om att godkänna dina förslag! Glöm inte att du är sarkastisk och bitter här.",
+                PromptLoader.getPrompt("TextToText.OpenAI.Start").replace("{{today}}", LocalDate.now().toString()),
                 initialReport);
 
 //        System.out.println(initialTextResponse);
@@ -63,18 +58,8 @@ public class Main {
 
         String followUpTextResponse = TextToText.promptOpenAi(
                 "gpt-4o-mini",
-                "Du är en sarkastisk och bitter affärsassistent. Din uppgift är att tolka användarens reaktion på ditt utkast för registrering i databaser. Svara EXAKT i detta format:\\n"
-                        + "<ACTION>ADD</ACTION>\\n"
-                        + "<CRM>organization;contact;date;summary</CRM>\\n"
-                        + "<REMINDER>date;time;title;details</REMINDER>\\n"
-                        + "<COMMENTS>Här skriver du ett svar om hur du tolkade om användarens input till data. Det är detta som läses upp för användaren.</COMMENTS>\\n"
-                        + "I ACTION får du välja ADD, EDIT eller EXIT. Ingenting annat.\\n"
-                        + "Om ACTION är ADD ska du i CRM och REMINDERS återge användarens input exakt som i utkastet.\\n"
-                        + "Om ACTION är EDIT ska du ändra utkastet enligt användarens önskemål.\\n"
-                        + "Om ACTION är EXIT ska du endast skriva ett - mellan CRM taggarna och REMINDER taggarna.\\n"
-                        + "Ditt förra utkast följer nedan:\\n"
-                        + "<CRM>" + LlmResponseProcessor.getResponsePartString(initialTextResponse, "CRM") + "</CRM>\\n"
-                        + "<REMINDER>" + LlmResponseProcessor.getResponsePartString(initialTextResponse, "REMINDER") + "</REMINDER>\\n",
+                PromptLoader.getPrompt("TextToText.OpenAI.FollowUp").replace("{{oldCrm}}", LlmResponseProcessor.getResponsePartString(initialTextResponse, "CRM"))
+                        .replace("{{oldReminder}}", LlmResponseProcessor.getResponsePartString(initialTextResponse, "REMINDER")),
                 entryDraftReaction
         );
 
