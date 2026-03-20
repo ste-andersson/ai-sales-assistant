@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import se.sveki.aiapiplayground.utilities.PromptLoader;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -17,7 +16,7 @@ private String conversationStatus = "START";
         YAMLMapper mapper = new YAMLMapper();
         JsonNode config = mapper.readTree(Main.class.getResourceAsStream("/config.yaml"));
 
-//        TextToSpeech.speak("Hej! Administratören här! Berätta vad du vill, så ser jag till att all information hamnar rätt. Min lott i livet är ju tyvärr att lyssna på ditt pladder och försöka få någon form av struktur i det hela...");
+        TextToSpeech.speak("Hej! Administratören här! Berätta vad du vill, så ser jag till att all information hamnar rätt. Min lott i livet är ju tyvärr att lyssna på ditt pladder och försöka få någon form av struktur i det hela...");
 
         String initialReport;
 
@@ -61,7 +60,7 @@ private String conversationStatus = "START";
                 "Rubrik",
                 "Detaljer");
 
-//        TextToSpeech.speak(comments);
+        TextToSpeech.speak(comments);
 
         conversationStatus = "APPROVAL";
 

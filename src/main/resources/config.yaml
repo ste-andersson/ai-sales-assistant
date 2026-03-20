@@ -25,6 +25,5 @@ SpeechToText:
 
 FunctionToggle:
   SpeechToText: "Off"
-  TextToText: "On"
   TextToSpeech: "Off"
   SendToDatabase: "Off"

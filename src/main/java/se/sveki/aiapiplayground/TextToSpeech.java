@@ -20,8 +20,14 @@ public class TextToSpeech {
 
     public static void speak(String script) throws Exception {
 
-        String apiKey = Dotenv.load().get("ELEVEN_LABS_KEY");
         JsonNode config = yamlMapper.readTree(Main.class.getResourceAsStream("/config.yaml"));
+
+        if(config.get("FunctionToggle").get("TextToSpeech").asText().equals("Off")){
+            return;
+        }
+
+        String apiKey = Dotenv.load().get("ELEVEN_LABS_KEY");
+
 
         TextToSpeechElevenLabsOutgoing.VoiceSettings settings =
                 new TextToSpeechElevenLabsOutgoing.VoiceSettings(0.5, 0.8);
