@@ -20,7 +20,7 @@ public class TextToText {
     private static final YAMLMapper yamlMapper = new YAMLMapper();
     private static final Logger performanceLog = LoggerFactory.getLogger("PerformanceLogger");
 
-    public static String think(String instruction, String prompt) throws IOException {
+    public String think(String instruction, String prompt) throws IOException {
 
         JsonNode config = yamlMapper.readTree(Main.class.getResourceAsStream("/config.yaml"));
         JsonNode tttConfig = config.get("TextToText");

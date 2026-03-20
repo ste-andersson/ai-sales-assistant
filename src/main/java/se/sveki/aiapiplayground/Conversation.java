@@ -16,21 +16,23 @@ private String conversationStatus = "START";
         YAMLMapper mapper = new YAMLMapper();
         JsonNode config = mapper.readTree(Main.class.getResourceAsStream("/config.yaml"));
 
-        TextToSpeech.speak("Hej! Administratören här! Berätta vad du vill, så ser jag till att all information hamnar rätt. Min lott i livet är ju tyvärr att lyssna på ditt pladder och försöka få någon form av struktur i det hela...");
+        SpeechToText listener = new SpeechToText();
+        TextToText thinker = new TextToText();
+        TextToSpeech speaker = new TextToSpeech();
+
+        speaker.speak("Hej! Administratören här! Berätta vad du vill, så ser jag till att all information hamnar rätt. Min lott i livet är ju tyvärr att lyssna på ditt pladder och försöka få någon form av struktur i det hela...");
 
         String initialReport;
 
         try {
-            initialReport = SpeechToText.listen(conversationStatus);
+            initialReport = listener.listen(conversationStatus);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
         System.out.println(config.get("Presentation").get("UserTextColor").asText() + "Du: " + initialReport + config.get("Presentation").get("ResetTextColor").asText());
 
-        String today = LocalDate.now().toString();
-
-        String initialTextResponse = TextToText.think(
+        String initialTextResponse = thinker.think(
                 PromptLoader.getPrompt("TextToText.OpenAI.Start").replace("{{today}}", LocalDate.now().toString()),
                 initialReport);
 
@@ -60,14 +62,14 @@ private String conversationStatus = "START";
                 "Rubrik",
                 "Detaljer");
 
-        TextToSpeech.speak(comments);
+        speaker.speak(comments);
 
         conversationStatus = "APPROVAL";
 
         String entryDraftReaction;
 
         try {
-            entryDraftReaction = SpeechToText.listen(conversationStatus);
+            entryDraftReaction = listener.listen(conversationStatus);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -76,7 +78,7 @@ private String conversationStatus = "START";
                 + "Du: " + entryDraftReaction
                 + config.get("Presentation").get("ResetTextColor").asText());
 
-        String followUpTextResponse = TextToText.think(
+        String followUpTextResponse = thinker.think(
                 PromptLoader.getPrompt("TextToText.OpenAI.FollowUp").replace("{{oldCrm}}", LlmResponseProcessor.getResponsePartString(initialTextResponse, "CRM"))
                         .replace("{{oldReminder}}", LlmResponseProcessor.getResponsePartString(initialTextResponse, "REMINDER")),
                 entryDraftReaction
@@ -84,7 +86,7 @@ private String conversationStatus = "START";
 
         comments = LlmResponseProcessor.getResponsePartString(followUpTextResponse, "COMMENTS");
 
-//        TextToSpeech.speak(comments);
+        speaker.speak(comments);
 
         System.out.println(config.get("Presentation").get("AssistantTextColor").asText() + "Assistenten: " + comments + config.get("Presentation").get("ResetTextColor").asText());
 

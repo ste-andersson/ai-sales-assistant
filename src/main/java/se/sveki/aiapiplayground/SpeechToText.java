@@ -19,7 +19,7 @@ public class SpeechToText {
     private static final YAMLMapper yamlMapper = new YAMLMapper();
     private static final Logger performanceLog = LoggerFactory.getLogger("PerformanceLogger");
 
-    public static String listen(String conversationStatus) throws Exception {
+    public String listen(String conversationStatus) throws IOException, LineUnavailableException {
 
         JsonNode config = yamlMapper.readTree(Main.class.getResourceAsStream("/config.yaml"));
         JsonNode sttConfig = config.get("SpeechToText");
