@@ -12,16 +12,16 @@ public class Conversation {
 
 private String conversationStatus = "START";
 
-    public void startConversation() throws IOException {
+    public void startConversation() throws Exception {
 
         YAMLMapper mapper = new YAMLMapper();
         JsonNode config = mapper.readTree(Main.class.getResourceAsStream("/config.yaml"));
 
-//        TextToSpeech.elevenLabsVoice("Hej! Administratören här! Berätta vad du vill, så ser jag till att all information hamnar rätt. Min lott i livet är ju tyvärr att lyssna på ditt pladder och försöka få någon form av struktur i det hela...");
+//        TextToSpeech.speak("Hej! Administratören här! Berätta vad du vill, så ser jag till att all information hamnar rätt. Min lott i livet är ju tyvärr att lyssna på ditt pladder och försöka få någon form av struktur i det hela...");
 
         String initialReport = "Jag hade just ett möte med Svante Jonsson på Testingbolaget och de är intresserade av att ta in tre konsulter efter sommaren. Vi har ett nytt möte 3:e juni 15:00 på deras kontor. Påminn mig om att jag behöver kolla med Hanna på torsdag förmiddag om hon är tillgänglig och att jag också måste kolla med Torbjörn i mitten av nästa vecka om han är intresserad av ett underkonsultuppdrag.";
 //        try {
-//            initialReport = SpeechToText.speechToText();
+//            initialReport = SpeechToText.listen();
 //        } catch (Exception e) {
 //            throw new RuntimeException(e);
 //        }
@@ -30,11 +30,9 @@ private String conversationStatus = "START";
 
         String today = LocalDate.now().toString();
 
-        String initialTextResponse = TextToText.textToText(
+        String initialTextResponse = TextToText.think(
                 PromptLoader.getPrompt("TextToText.OpenAI.Start").replace("{{today}}", LocalDate.now().toString()),
                 initialReport);
-
-//        System.out.println(initialTextResponse);
 
         String comments = LlmResponseProcessor.getResponsePartString(initialTextResponse, "COMMENTS");
         List<String[]> crmData = LlmResponseProcessor.getResponsePartList(initialTextResponse, "CRM");
@@ -62,15 +60,12 @@ private String conversationStatus = "START";
                 "Rubrik",
                 "Detaljer");
 
-
-
-        String safeComments = comments.replace("\"", "\\\"");
-//        TextToSpeech.elevenLabsVoice(comments);
+//        TextToSpeech.speak(comments);
 
         String entryDraftReaction = "Det blir jättebra! Jag godkänner det!";
 
 //        try {
-//            entryDraftReaction = SpeechToText.speechToText();
+//            entryDraftReaction = SpeechToText.listen();
 //        } catch (Exception e) {
 //            throw new RuntimeException(e);
 //        }
@@ -79,7 +74,7 @@ private String conversationStatus = "START";
                 + "Du: " + entryDraftReaction
                 + config.get("Presentation").get("ResetTextColor").asText());
 
-        String followUpTextResponse = TextToText.textToText(
+        String followUpTextResponse = TextToText.think(
                 PromptLoader.getPrompt("TextToText.OpenAI.FollowUp").replace("{{oldCrm}}", LlmResponseProcessor.getResponsePartString(initialTextResponse, "CRM"))
                         .replace("{{oldReminder}}", LlmResponseProcessor.getResponsePartString(initialTextResponse, "REMINDER")),
                 entryDraftReaction
@@ -87,7 +82,7 @@ private String conversationStatus = "START";
 
         comments = LlmResponseProcessor.getResponsePartString(followUpTextResponse, "COMMENTS");
 
-//        TextToSpeech.elevenLabsVoice(comments);
+//        TextToSpeech.speak(comments);
 
         System.out.println(config.get("Presentation").get("AssistantTextColor").asText() + "Assistenten: " + comments + config.get("Presentation").get("ResetTextColor").asText());
 

@@ -18,7 +18,7 @@ public class TextToSpeech {
     private static final YAMLMapper yamlMapper = new YAMLMapper();
     private static final Logger performanceLog = LoggerFactory.getLogger("PerformanceLogger");
 
-    public static void elevenLabsVoice(String script) throws Exception {
+    public static void speak(String script) throws Exception {
 
         String apiKey = Dotenv.load().get("ELEVEN_LABS_KEY");
         JsonNode config = yamlMapper.readTree(Main.class.getResourceAsStream("/config.yaml"));
