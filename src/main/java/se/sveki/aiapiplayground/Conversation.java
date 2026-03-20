@@ -2,7 +2,6 @@ package se.sveki.aiapiplayground;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import se.sveki.aiapiplayground.utilities.PromptLoader;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -13,8 +12,9 @@ private String conversationStatus = "START";
 
     public void startConversation() throws Exception {
 
-        YAMLMapper mapper = new YAMLMapper();
-        JsonNode config = mapper.readTree(Main.class.getResourceAsStream("/config.yaml"));
+        YAMLMapper yamlMapper = new YAMLMapper();
+        JsonNode config = yamlMapper.readTree(Main.class.getResourceAsStream("/config.yaml"));
+        JsonNode prompts = yamlMapper.readTree(Main.class.getResourceAsStream("/prompts.yaml"));
 
         SpeechToText listener = new SpeechToText();
         TextToText thinker = new TextToText();
@@ -32,9 +32,10 @@ private String conversationStatus = "START";
 
         System.out.println(config.get("Presentation").get("UserTextColor").asText() + "Du: " + initialReport + config.get("Presentation").get("ResetTextColor").asText());
 
-        String initialTextResponse = thinker.think(
-                PromptLoader.getPrompt("TextToText.OpenAI.Start").replace("{{today}}", LocalDate.now().toString()),
-                initialReport);
+        String startInstructions = prompts.get("TextToText").get("OpenAI").get("START").asText()
+                .replace("{{today}}", LocalDate.now().toString());
+
+        String initialTextResponse = thinker.think(startInstructions, initialReport);
 
         String comments = LlmResponseProcessor.getResponsePartString(initialTextResponse, "COMMENTS");
         List<String[]> crmData = LlmResponseProcessor.getResponsePartList(initialTextResponse, "CRM");
@@ -78,11 +79,10 @@ private String conversationStatus = "START";
                 + "Du: " + entryDraftReaction
                 + config.get("Presentation").get("ResetTextColor").asText());
 
-        String followUpTextResponse = thinker.think(
-                PromptLoader.getPrompt("TextToText.OpenAI.FollowUp").replace("{{oldCrm}}", LlmResponseProcessor.getResponsePartString(initialTextResponse, "CRM"))
-                        .replace("{{oldReminder}}", LlmResponseProcessor.getResponsePartString(initialTextResponse, "REMINDER")),
-                entryDraftReaction
-        );
+        String followUpInstructions = prompts.get("TextToText").get("OpenAI").get("APPROVAL").asText()
+                .replace("{{today}}", LocalDate.now().toString());
+
+        String followUpTextResponse = thinker.think(followUpInstructions, initialReport);
 
         comments = LlmResponseProcessor.getResponsePartString(followUpTextResponse, "COMMENTS");
 
