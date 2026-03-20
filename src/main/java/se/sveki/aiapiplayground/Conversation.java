@@ -92,17 +92,17 @@ private String conversationStatus = "START";
 
         conversationStatus = LlmResponseProcessor.getResponsePartString(followUpTextResponse, "ACTION");
 
-//        if (conversationStatus.equals("ADD")) {
-//            for (int i = 0; i < crmData.size(); i++) {
-//                String crmInputText = String.format("{\"organization\":\"%s\",\"contact\":\"%s\",\"date\":\"%s\",\"summary\":\"%s\"}", crmData.get(i)[0], crmData.get(i)[1], crmData.get(i)[2], crmData.get(i)[3]);
-//                SendToDatabase.postCrmEntry(crmInputText, "http://localhost:8080/api/crm-entries");
-//            }
-//
-//            for (int i = 0; i < remindersData.size(); i++) {
-//                String reminderInputText = String.format("{\"date\":\"%s\",\"time\":\"%s\",\"title\":\"%s\",\"details\":\"%s\"}", remindersData.get(i)[0], remindersData.get(i)[1], remindersData.get(i)[2], remindersData.get(i)[3]);
-//                SendToDatabase.postCrmEntry(reminderInputText, "http://localhost:8081/api/reminder-entries");
-//            }
-//        }
+        if (conversationStatus.equals("ADD") && config.get("FunctionToggle").get("SendToDatabase").asText().equals("On")) {
+            for (int i = 0; i < crmData.size(); i++) {
+                String crmInputText = String.format("{\"organization\":\"%s\",\"contact\":\"%s\",\"date\":\"%s\",\"summary\":\"%s\"}", crmData.get(i)[0], crmData.get(i)[1], crmData.get(i)[2], crmData.get(i)[3]);
+                SendToDatabase.postCrmEntry(crmInputText, "http://localhost:8080/api/crm-entries");
+            }
+
+            for (int i = 0; i < remindersData.size(); i++) {
+                String reminderInputText = String.format("{\"date\":\"%s\",\"time\":\"%s\",\"title\":\"%s\",\"details\":\"%s\"}", remindersData.get(i)[0], remindersData.get(i)[1], remindersData.get(i)[2], remindersData.get(i)[3]);
+                SendToDatabase.postCrmEntry(reminderInputText, "http://localhost:8081/api/reminder-entries");
+            }
+        }
 
     }
 
