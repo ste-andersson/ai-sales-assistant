@@ -57,7 +57,7 @@ public class TextToText {
                 .post(RequestBody.create(jsonPayload, MediaType.parse("application/json")))
                 .build();
 
-            performanceLog.info("START: Call to " + provider + "(" + model + ")");
+            performanceLog.info("START: Call to {} ({})", provider, model);
 
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
@@ -67,7 +67,7 @@ public class TextToText {
 
             String responseBody = response.body().string();
             TextToTextOpenAiIncoming mappedResponse = jsonMapper.readValue(responseBody, TextToTextOpenAiIncoming.class);
-            performanceLog.info("STOP: Text from " + provider + "(" + model + ")");
+            performanceLog.info("STOP: Text from {} ({})", provider, model);
             return mappedResponse.choices().get(0).message().content();
         }
     }

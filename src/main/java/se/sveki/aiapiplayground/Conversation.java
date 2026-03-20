@@ -103,14 +103,5 @@ private String conversationStatus = "START";
                 SendToDatabase.postCrmEntry(reminderInputText, "http://localhost:8081/api/reminder-entries");
             }
         }
-
-    }
-
-    public String getConversationStatus() {
-        return conversationStatus;
-    }
-
-    public void setConversationStatus(String conversationStatus) {
-        this.conversationStatus = conversationStatus;
     }
 }

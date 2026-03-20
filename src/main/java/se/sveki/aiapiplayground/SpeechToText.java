@@ -83,13 +83,13 @@ public class SpeechToText {
                 .header("Authorization", "Bearer " + apiKey)
                 .post(body).build();
 
-        performanceLog.info("START: Call to " + provider + "(" + model + ")");
+        performanceLog.info("START: Call to {} ({})", provider, model);
 
         try (Response res = client.newCall(req).execute()) {
             if (!res.isSuccessful()) throw new IOException(provider + " error: " + res.code());
 
             SpeechToTextOpenAiIncoming result = jsonMapper.readValue(res.body().string(), SpeechToTextOpenAiIncoming.class);
-            performanceLog.info("STOP: Response from " + provider + "(" + model + ")");
+            performanceLog.info("STOP: Response from {} ({})", provider, model);
             return result.text();
         }
     }

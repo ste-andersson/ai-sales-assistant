@@ -5,6 +5,9 @@ import java.util.List;
 
 public class LlmResponseProcessor {
 
+    private LlmResponseProcessor() {}
+
+
     public static String getResponsePartString(String llmResponse, String keyword) {
         int startPosition = llmResponse.indexOf("<" + keyword + ">") + keyword.length() + 2;
         int endPosition = llmResponse.lastIndexOf("</" + keyword + ">");
