@@ -22,3 +22,9 @@ SpeechToText:
   #Supported options: "OpenAI", "Groq"
   Model: "whisper-large-v3-turbo"
   #Supported options: whisper-1 (OpenAI), "whisper-large-v3-turbo" (Groq), "whisper-large-v3" (Groq)
+
+FunctionToggle:
+  SpeechToText: "Off"
+  TextToText: "On"
+  TextToSpeech: "Off"
+  SendToDatabase: "Off"

@@ -19,12 +19,17 @@ public class SpeechToText {
     private static final YAMLMapper yamlMapper = new YAMLMapper();
     private static final Logger performanceLog = LoggerFactory.getLogger("PerformanceLogger");
 
-    public static String listen() throws Exception {
+    public static String listen(String conversationStatus) throws Exception {
 
         JsonNode config = yamlMapper.readTree(Main.class.getResourceAsStream("/config.yaml"));
         JsonNode sttConfig = config.get("SpeechToText");
         String provider = sttConfig.get("Provider").asText();
         String model = sttConfig.get("Model").asText();
+        JsonNode mock = yamlMapper.readTree(Main.class.getResourceAsStream("/mock.yaml"));
+
+        if (config.get("FunctionToggle").get("SpeechToText").asText().equals("Off")) {
+            return mock.get("SpeechToText").get(conversationStatus).asText();
+        }
 
         String url;
         String apiKey;
