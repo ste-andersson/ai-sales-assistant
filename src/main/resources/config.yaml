@@ -15,7 +15,7 @@ TextToSpeech:
   OptimizeStreamingLatency: "2"
   #Supported options: 1-4
   VoiceId: "Vo4adEN1y46b0ufuysRe"
-  #Supported options: Ola - "Vo4adEN1y46b0ufuysRe" (ElevenLabs)
+  #Supported options: Ola - "Vo4adEN1y46b0ufuysRe" (ElevenLabs), Evelina - "kPdGSxhZAqy4bmPAf9iJ" (ElevenLabs"), Sanna - "4xkUqaR9MYOJHoaC1Nak" (ElevenLabs)
 
 SpeechToText:
   Provider: "Groq"
